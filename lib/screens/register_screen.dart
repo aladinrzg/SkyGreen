@@ -99,22 +99,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   width: 130,
                   height: 130,
                   decoration: BoxDecoration(
-                      border: Border.all(width: 4, color: Colors.white),
-                      boxShadow: [
-                        BoxShadow(
-                            spreadRadius: 2,
-                            blurRadius: 10,
-                            color: Colors.black.withOpacity(0.1))
-                      ],
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: AssetImage("assets/images/pfp.jpg"),
-                        colorFilter: ColorFilter.mode(
-                          Colors.green.withOpacity(0.3),
-                          BlendMode.dstATop,
+                    border: Border.all(width: 4, color: Colors.white),
+                    boxShadow: [
+                      BoxShadow(
+                        spreadRadius: 2,
+                        blurRadius: 10,
+                        color: Colors.black.withOpacity(0.1),
+                      )
+                    ],
+                    shape: BoxShape.circle,
+                  ),
+                  child: capturedImage != null
+                      ? ClipOval(
+                          child: Image.file(
+                            capturedImage!,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : DecoratedBox(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: AssetImage("assets/images/pfp.jpg"),
+                              colorFilter: ColorFilter.mode(
+                                Colors.green.withOpacity(0.3),
+                                BlendMode.dstATop,
+                              ),
+                            ),
+                          ),
                         ),
-                      )),
                 ),
                 Positioned(
                   bottom: 0,
@@ -314,7 +328,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ],
             cancelButton: CupertinoActionSheetAction(
               onPressed: () {
-                Navigator.of(cont).pop;
+                Navigator.of(cont).pop();
               },
               child: Text('Cancel', style: TextStyle(color: Colors.red)),
             ),
@@ -330,6 +344,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       setState(() {
         capturedImage = File(pickedImage.path);
       });
+      Navigator.of(context).pop();
     }
   }
 
@@ -338,7 +353,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final XFile? pickedImage =
         await imagePicker.pickImage(source: ImageSource.gallery);
     if (pickedImage != null) {
-      // Handle the selected image (e.g., display it or upload it)
+      setState(() {
+        capturedImage = File(pickedImage.path);
+      });
+      Navigator.of(context).pop();
     }
   }
 }
