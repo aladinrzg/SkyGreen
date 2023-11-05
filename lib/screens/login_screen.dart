@@ -175,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           Center(
             child: FormHelper.submitButton(
-              "Login",
+              "Edit Profile",
               () {},
               btnColor: Colors.white,
               borderColor: Colors.green,
