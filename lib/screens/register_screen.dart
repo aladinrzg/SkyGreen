@@ -15,13 +15,12 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   File? capturedImage;
-  // final ImagePicker picker = ImagePicker();
   bool isAPIcallProcess = false;
   bool hidePassword = true;
   GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
-  String? username;
-  String? password;
-  String? email;
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -79,8 +78,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           Padding(
             padding: const EdgeInsets.only(
               left: 20,
-              bottom: 10,
-              top: 20,
+              bottom: 0,
             ),
             child: Text(
               "Register",
@@ -153,113 +151,110 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ],
             ),
           ),
+          SizedBox(
+            height: 20,
+          ),
           Padding(
-            padding: const EdgeInsets.only(top: 25),
-            child: FormHelper.inputFieldWidget(
-              context,
-              "username",
-              "username",
-              (onValidateVal) {
-                if (onValidateVal.isEmpty) {
-                  return "username is required";
-                }
-                return null;
-              },
-              (onSavedVal) {
-                username = onSavedVal;
-              },
-              borderFocusColor: Colors.white,
-              prefixIconColor: Colors.white,
-              borderColor: Colors.white,
-              textColor: Colors.white,
-              hintColor: Colors.white.withOpacity(0.5),
-              borderRadius: 10,
-              prefixIcon: Icon(
-                Icons.person,
-                color: Colors.white,
+            padding:
+                const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+            child: TextField(
+              controller: usernameController,
+              decoration: InputDecoration(
+                labelText: 'Username',
+                prefixIcon: Icon(Icons.person, color: Colors.white),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white, width: 2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                labelStyle: TextStyle(color: Colors.white),
+                hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
               ),
+              style: TextStyle(color: Colors.white),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: FormHelper.inputFieldWidget(
-              context,
-              "passsword",
-              "email",
-              (onValidateVal) {
-                if (onValidateVal.isEmpty) {
-                  return "the email is required";
-                }
-                return null;
-              },
-              (onSavedVal) {
-                username = onSavedVal;
-              },
-              borderFocusColor: Colors.white,
-              prefixIconColor: Colors.white,
-              borderColor: Colors.white,
-              textColor: Colors.white,
-              hintColor: Colors.white.withOpacity(0.5),
-              borderRadius: 10,
-              prefixIcon: Icon(
-                Icons.email,
-                color: Colors.white,
+            padding: EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+            child: TextField(
+              controller: emailController,
+              decoration: InputDecoration(
+                labelText: 'Email',
+                prefixIcon: Icon(Icons.email, color: Colors.white),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white, width: 2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                labelStyle: TextStyle(color: Colors.white),
+                hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
               ),
+              style: TextStyle(color: Colors.white),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: FormHelper.inputFieldWidget(
-              context,
-              "passsword",
-              "Password",
-              (onValidateVal) {
-                if (onValidateVal.isEmpty) {
-                  return "the password is required";
-                }
-                return null;
-              },
-              (onSavedVal) {
-                username = onSavedVal;
-              },
-              borderFocusColor: Colors.white,
-              prefixIconColor: Colors.white,
-              borderColor: Colors.white,
-              textColor: Colors.white,
-              hintColor: Colors.white.withOpacity(0.5),
-              borderRadius: 10,
+            padding:
+                const EdgeInsets.symmetric(horizontal: 15.0, vertical: 8.0),
+            child: TextField(
+              controller: passwordController,
               obscureText: hidePassword,
-              suffixIcon: IconButton(
+              decoration: InputDecoration(
+                labelText: 'Password',
+                prefixIcon: Icon(Icons.lock, color: Colors.white),
+                suffixIcon: IconButton(
                   onPressed: () {
                     setState(() {
                       hidePassword = !hidePassword;
                     });
                   },
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white,
                   icon: Icon(
-                    hidePassword ? Icons.visibility_off : Icons.visibility,
-                  )),
-              prefixIcon: Icon(
-                Icons.lock,
-                color: Colors.white,
+                      hidePassword ? Icons.visibility_off : Icons.visibility),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white, width: 2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                labelStyle: TextStyle(color: Colors.white),
+                hintStyle: TextStyle(color: Colors.white.withOpacity(0.5)),
               ),
+              style: TextStyle(color: Colors.white),
             ),
           ),
           SizedBox(
-            height: 20,
+            height: 10,
           ),
           Center(
-            child: FormHelper.submitButton(
-              "register",
-              () {},
-              btnColor: Colors.white,
-              borderColor: Colors.green,
-              txtColor: Colors.green,
-              borderRadius: 10,
+            child: ElevatedButton(
+              onPressed: () {
+                // Register logic here
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.green,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: EdgeInsets.symmetric(
+                    horizontal: 50, vertical: 20), // adjusted padding
+                minimumSize: Size(200, 60), // minimum width and height
+                textStyle: TextStyle(fontSize: 20), // font size of button text
+              ),
+              child: Text('Register',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
             ),
           ),
           SizedBox(
-            height: 20,
+            height: 10,
           ),
           Center(
             child: Text("OR",
@@ -269,9 +264,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   color: Colors.white,
                 )),
           ),
-          SizedBox(
-            height: 20,
-          ),
+          // SizedBox(
+          //   height: 3,
+          // ),
           Align(
             alignment: Alignment.center,
             child: Padding(

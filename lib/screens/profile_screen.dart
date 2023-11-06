@@ -83,7 +83,9 @@ class ProfileScreen extends StatelessWidget {
                 width: 200,
                 child: FormHelper.submitButton(
                   "Edit Profile",
-                  () {},
+                  () {
+                    Navigator.pushNamed(context, "/updateProfile");
+                  },
                   btnColor: Colors.white,
                   borderColor: Colors.green,
                   txtColor: Colors.green,
