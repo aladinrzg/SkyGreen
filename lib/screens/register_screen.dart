@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:snippet_coder_utils/FormHelper.dart';
+
 import 'package:snippet_coder_utils/ProgressHUD.dart';
 
 class RegisterScreen extends StatefulWidget {
