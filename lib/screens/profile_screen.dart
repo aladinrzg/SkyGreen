@@ -192,24 +192,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         content:
                             const Text('Are you sure you want to log out?'),
                         actions: <Widget>[
-                          // No button
                           TextButton(
                             onPressed: () {
-                              // Dismiss the dialog but don't log out
                               Navigator.of(context).pop();
                             },
                             child: const Text('No'),
                           ),
-                          // Yes button
                           TextButton(
                             onPressed: () async {
-                              // Dismiss the dialog
                               Navigator.of(context).pop();
-                              // Clear shared preferences and log out
+
                               final SharedPreferences prefs =
                                   await SharedPreferences.getInstance();
                               await prefs.clear();
-                              // Navigate to the login screen
+
                               Navigator.pushNamed(context, '/');
                             },
                             child: const Text('Yes'),
@@ -236,8 +232,8 @@ class ProfileMenuWidget extends StatelessWidget {
     required this.onPress,
     this.endIcon = true,
     this.textColor,
-    this.iconColor, // New property for optional icon color
-    this.iconOutlineColor, // New property for optional icon background color
+    this.iconColor,
+    this.iconOutlineColor,
   });
 
   final String title;
@@ -245,9 +241,8 @@ class ProfileMenuWidget extends StatelessWidget {
   final VoidCallback onPress;
   final bool endIcon;
   final Color? textColor;
-  final Color? iconColor; // New property for optional icon color
-  final Color?
-      iconOutlineColor; // New property for optional icon background color
+  final Color? iconColor;
+  final Color? iconOutlineColor;
 
   @override
   Widget build(BuildContext context) {
@@ -258,13 +253,11 @@ class ProfileMenuWidget extends StatelessWidget {
         height: 40,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(100),
-          color: iconOutlineColor ??
-              Colors.white.withOpacity(0.1), // Use iconOutlineColor if provided
+          color: iconOutlineColor ?? Colors.white.withOpacity(0.1),
         ),
         child: Icon(
           icon,
-          color: iconColor ??
-              Colors.white, // Use iconColor if provided, else use Colors.grey
+          color: iconColor ?? Colors.white,
         ),
       ),
       title: Text(

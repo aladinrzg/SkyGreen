@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:local_auth/local_auth.dart';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -155,7 +157,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
           SizedBox(
-            height: 80,
+            height: 60,
           ),
           Center(
             child: ElevatedButton(
@@ -200,7 +202,56 @@ class _LoginScreenState extends State<LoginScreen> {
                 )),
           ),
           SizedBox(
-            height: 20,
+            height: 7,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Google Icon
+              GestureDetector(
+                onTap: () {
+                  print('google');
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Image.asset(
+                    'assets/images/google.png',
+                    width: 50, // Adjust the width and height as needed
+                    height: 50,
+                  ),
+                ),
+              ),
+
+              // Facebook Icon
+              GestureDetector(
+                onTap: () {
+                  print('facebook');
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Image.asset(
+                    'assets/images/facebook.png',
+                    width: 50, // Adjust the width and height as needed
+                    height: 50,
+                  ),
+                ),
+              ),
+
+              // FaceID Icon
+              GestureDetector(
+                onTap: () async {
+                  await authenticateWithBiometrics();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Image.asset(
+                    'assets/images/faceId.png',
+                    width: 50, // Adjust the width and height as needed
+                    height: 50,
+                  ),
+                ),
+              ),
+            ],
           ),
           Align(
             alignment: Alignment.center,
@@ -273,6 +324,29 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+
+  Future<void> authenticateWithBiometrics() async {
+    final localAuth = LocalAuthentication();
+
+    try {
+      bool canCheckBiometrics = await localAuth.canCheckBiometrics;
+
+      if (canCheckBiometrics) {
+        bool didAuthenticate = await localAuth.authenticate(
+          localizedReason:
+              'Authenticate to access your account', // Reason for authentication.
+        );
+
+        if (didAuthenticate) {
+          // User successfully authenticated using biometrics.
+          // You can now proceed to sign in or navigate to another screen.
+          await signIn(context, username!, password!);
+        }
+      }
+    } catch (e) {
+      print('Biometric authentication error: $e');
+    }
+  }
 }
 
 //  api consomation
@@ -335,5 +409,5 @@ Future<void> printSharedPreferences() async {
   print('Token: $token');
   print('Username: $username');
   print('Email: $email');
-  print('image: $image');
+  print('Image: $image');
 }
