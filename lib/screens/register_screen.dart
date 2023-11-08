@@ -3,6 +3,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 import 'package:snippet_coder_utils/ProgressHUD.dart';
 
@@ -236,7 +239,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           Center(
             child: ElevatedButton(
               onPressed: () {
-                // Register logic here
+                signUpUser();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
@@ -352,5 +355,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
       });
       Navigator.of(context).pop();
     }
+  }
+
+  Future<void> signUpUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final requestUrl =
+        'http://10.0.2.2:9090/user/signup'; // Replace with your API endpoint
+    var uri = Uri.parse(requestUrl);
+
+    // Prepare the form data
+    var request = http.MultipartRequest('POST', uri)
+      ..fields['username'] = usernameController.text
+      ..fields['email'] = emailController.text
+      ..fields['password'] = passwordController.text;
+
+    // Attach the image file if it's selected
+    if (capturedImage != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'image', // the 'image' key must match the key expected by your backend
+          capturedImage!.path,
+        ),
+      );
+    }
+
+    // Send the request
+    var streamedResponse = await request.send();
+
+    // Listen for the response
+    await streamedResponse.stream.transform(utf8.decoder).listen((value) async {
+      Map<String, dynamic> response = json.decode(value);
+      if (streamedResponse.statusCode == 201) {
+        // Save the token, username, image, and email
+        String imageUrl = response['image']
+            .replaceAll(RegExp('http://localhost'), 'http://10.0.2.2');
+        await prefs.setString('token', response['token']);
+        await prefs.setString('username', response['username']);
+        await prefs.setString('image', imageUrl);
+        await prefs.setString('email', response['email']);
+
+        // Navigate to the profile screen
+        Navigator.pushNamed(context, '/profile');
+      } else {
+        // Handle the error, you might want to show an alert to the user
+        print('Error: ${response['message']}');
+      }
+    });
   }
 }

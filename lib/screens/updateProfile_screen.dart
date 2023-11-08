@@ -1,10 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
-
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:snippet_coder_utils/ProgressHUD.dart';
 
 class UpdateProfileScreen extends StatefulWidget {
@@ -16,19 +18,30 @@ class UpdateProfileScreen extends StatefulWidget {
 
 class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   File? capturedImage;
+  String? savedImagePath;
+
   bool isAPIcallProcess = false;
   bool hidePassword = true;
   GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
+  GlobalKey<State> _progressHUDKey = GlobalKey<State>();
+
   TextEditingController usernameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   @override
+  void initState() {
+    super.initState();
+    _loadSavedImage(); // Load the saved image path from SharedPreferences when the widget is initialized
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green,
         leading: IconButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pop(context);
+          },
           icon: const Icon(
             LineAwesomeIcons.angle_left,
             color: Colors.white,
@@ -45,13 +58,13 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
       ),
       backgroundColor: Colors.green,
       body: ProgressHUD(
+        key: _progressHUDKey,
         child: Form(
           key: globalFormKey,
           child: _RegisterUI(context),
         ),
         inAsyncCall: isAPIcallProcess,
         opacity: 0.3,
-        key: UniqueKey(),
       ),
     );
   }
@@ -88,19 +101,26 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                               fit: BoxFit.cover,
                             ),
                           )
-                        : DecoratedBox(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: AssetImage("assets/images/pfp.jpg"),
-                                colorFilter: ColorFilter.mode(
-                                  Colors.green.withOpacity(0.3),
-                                  BlendMode.dstATop,
+                        : savedImagePath != null
+                            ? ClipOval(
+                                child: Image.network(
+                                  savedImagePath!,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : DecoratedBox(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: AssetImage("assets/images/pfp.jpg"),
+                                    colorFilter: ColorFilter.mode(
+                                      Colors.green.withOpacity(0.3),
+                                      BlendMode.dstATop,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
                   ),
                   Positioned(
                     bottom: 0,
@@ -212,7 +232,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
           Center(
             child: ElevatedButton(
               onPressed: () {
-                // Register logic here
+                updateProfile();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
@@ -313,6 +333,85 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
         capturedImage = File(pickedImage.path);
       });
       Navigator.of(context).pop();
+    }
+  }
+
+  Future<void> _loadSavedImage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? imagePath = prefs.getString('image');
+    setState(() {
+      savedImagePath = imagePath;
+    });
+  }
+
+  //apiiiiiii
+  Future<void> updateProfile() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? token = prefs.getString('token'); // Retrieve the stored token
+
+    if (token == null) {
+      print('No token found!');
+      return;
+    }
+
+    final api =
+        'http://localhost:9090/user/updateProfile'; // Update with your actual server IP if not running on the same device
+    final uri = Uri.parse(api);
+    final request = http.MultipartRequest('PUT', uri)
+      ..headers.addAll({
+        'Content-Type': 'application/json',
+        'Authorization':
+            'Bearer $token', // Ensure your token is correctly included
+      });
+
+    // Add other user fields to the request
+    request.fields['username'] = usernameController.text;
+    request.fields['email'] = emailController.text;
+    if (passwordController.text.isNotEmpty) {
+      request.fields['password'] = passwordController.text;
+    }
+
+    // If there is a captured image, include it in the request
+    if (capturedImage != null) {
+      request.files.add(await http.MultipartFile.fromPath(
+        'image',
+        capturedImage!.path,
+      ));
+    }
+
+    // If you want to include the savedImagePath when there is no new captured image, uncomment below
+    // else if (savedImagePath != null && savedImagePath!.isNotEmpty) {
+    //   request.fields['imageUrl'] = savedImagePath!;
+    // }
+
+    try {
+      setState(() {
+        isAPIcallProcess = true;
+      });
+
+      // Send the PUT request
+      final streamedResponse = await request.send();
+
+      // Get the response from the server
+      final response = await http.Response.fromStream(streamedResponse);
+
+      setState(() {
+        isAPIcallProcess = false;
+      });
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        // Update the UI or display a message after successfully updating the profile
+        print('Profile updated: $responseData');
+      } else {
+        // Handle error response
+        print('Failed to update profile: ${response.body}');
+      }
+    } catch (e) {
+      setState(() {
+        isAPIcallProcess = false;
+      });
+      print('Error updating profile: $e');
     }
   }
 }

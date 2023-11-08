@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:sky_green/screens/login_screen.dart';
 import 'package:sky_green/screens/profile_screen.dart';
 import 'package:sky_green/screens/register_screen.dart';
+import 'package:sky_green/screens/splash_screen.dart';
 import 'package:sky_green/screens/updateProfile_screen.dart';
 
-Widget _defaultHome = const UpdateProfileScreen();
+Widget _defaultHome = const SplashScreen();
 
 void main() {
   runApp(const MyApp());

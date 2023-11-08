@@ -2,6 +2,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'package:snippet_coder_utils/ProgressHUD.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,6 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isAPIcallProcess = false;
   bool hidePassword = true;
   GlobalKey<FormState> loginFormKey = GlobalKey<FormState>();
+  GlobalKey<State> _progressHUDKey = GlobalKey<State>();
 
   String? username;
   String? password;
@@ -24,8 +28,9 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Scaffold(
         backgroundColor: Colors.green,
         body: ProgressHUD(
-          key: loginFormKey,
+          key: _progressHUDKey,
           child: Form(
+            key: loginFormKey,
             child: _loginUI(context),
           ),
           inAsyncCall: isAPIcallProcess,
@@ -154,8 +159,17 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
           Center(
             child: ElevatedButton(
-              onPressed: () {
-                // Implement login logic here
+              onPressed: () async {
+                if (loginFormKey.currentState!.validate()) {
+                  loginFormKey.currentState!.save();
+                  setState(() {
+                    isAPIcallProcess = true;
+                  });
+                  await signIn(context, username!, password!);
+                  setState(() {
+                    isAPIcallProcess = false;
+                  });
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
@@ -169,7 +183,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 textStyle: TextStyle(fontSize: 20), // font size of button text
               ),
               child: Text(
-                "Edit Profile",
+                "Login",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
@@ -259,4 +273,67 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+}
+
+//  api consomation
+Future<void> signIn(
+    BuildContext context, String emailOrUsername, String password) async {
+  final url = Uri.parse('http://10.0.2.2:9090/user/signin');
+  try {
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'emailOrUsername': emailOrUsername,
+        'password': password,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final prefs = await SharedPreferences.getInstance();
+// for android localhost
+      String imageUrl = data['image']
+          .replaceAll(RegExp('http://localhost'), 'http://10.0.2.2');
+      await prefs.setString('token', data['token']);
+      await prefs.setString('username', data['username']);
+      await prefs.setString('image', imageUrl);
+      await prefs.setString('email', data['email']);
+      // Navigate to the next screen or show a success message
+
+      await printSharedPreferences();
+
+      // Here you could navigate to the next screen or show a success message
+      // Navigator.of(context).pushReplacementNamed('/home')
+      // Navigate to the next screen here after saving
+      Navigator.pushNamed(context, '/profile'); // Use the correct route name
+    } else {
+      final data = json.decode(response.body);
+      // Handle the error, show an alert dialog or a snackbar with data['Message']
+    }
+  } catch (e) {
+    // Handle the exception, show an alert dialog or a snackbar with the error
+    print('Error signing in: $e');
+  }
+}
+
+Future<void> printSharedPreferences() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  // // To print all keys and values
+  // print('Shared preferences keys and values:');
+  // prefs.getKeys().forEach((key) {
+  //   print('$key: ${prefs.get(key)}');
+  // });
+
+  // Or to print a specific value:
+  String? token = prefs.getString('token');
+  String? username = prefs.getString('username');
+  String? email = prefs.getString('email');
+  String? image = prefs.getString('image');
+
+  print('Token: $token');
+  print('Username: $username');
+  print('Email: $email');
+  print('image: $image');
 }

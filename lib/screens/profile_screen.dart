@@ -1,10 +1,34 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({Key? key}) : super(key: key);
+
+  @override
+  _ProfileScreenState createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  String _username = 'Your Name';
+  String _email = 'email@example.com';
+  String _imagePath = 'assets/images/pfp.jpg';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  _loadProfile() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _username = prefs.getString('username') ?? 'Your Name';
+      _email = prefs.getString('email') ?? 'email@example.com';
+      _imagePath = prefs.getString('image') ?? 'assets/images/pfp.png';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +37,9 @@ class ProfileScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.green,
         leading: IconButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pop(context);
+          },
           icon: const Icon(
             LineAwesomeIcons.angle_left,
             color: Colors.white,
@@ -53,11 +79,18 @@ class ProfileScreen extends StatelessWidget {
                     shape: BoxShape.circle,
                     image: DecorationImage(
                       fit: BoxFit.cover,
-                      image: AssetImage("assets/images/pfp.jpg"),
-                      colorFilter: ColorFilter.mode(
-                        Colors.green.withOpacity(0.3),
-                        BlendMode.dstATop,
-                      ),
+                      image: _imagePath.startsWith('http')
+                          ? NetworkImage(_imagePath, scale: 1.0)
+                              as ImageProvider<Object>
+                          : AssetImage(_imagePath),
+                      onError: (exception, stackTrace) {
+                        // handle the error here
+                        print("Failed to load image: $exception");
+                      },
+                      // colorFilter: ColorFilter.mode(
+                      //   Colors.green.withOpacity(0.3),
+                      //   BlendMode.dstATop,
+                      // ),
                     ),
                   ),
                 ),
@@ -66,14 +99,14 @@ class ProfileScreen extends StatelessWidget {
                 height: 10,
               ),
               Text(
-                "Alaeddine Rezgani",
+                _username,
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 40,
                     color: Colors.white),
               ),
               Text(
-                "Alaeddine.Rezgani@gmail.com",
+                _email,
                 style: TextStyle(fontSize: 20, color: Colors.white),
               ),
               const SizedBox(
@@ -81,17 +114,29 @@ class ProfileScreen extends StatelessWidget {
               ),
               SizedBox(
                 width: 200,
-                child: FormHelper.submitButton(
-                  "Edit Profile",
-                  () {
-                    Navigator.pushNamed(context, "/updateProfile");
-                  },
-                  btnColor: Colors.white,
-                  borderColor: Colors.green,
-                  txtColor: Colors.green,
-                  borderRadius: 10,
-                ),
               ),
+              ElevatedButton(
+                onPressed: () {
+                  print(
+                      'Edit Profile Pressed'); // Add a print statement to check if this gets printed
+                  Navigator.pushNamed(context, '/updateProfile');
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.green,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: 50, vertical: 20), // adjusted padding
+                  minimumSize: Size(200, 60), // minimum width and height
+                  textStyle:
+                      TextStyle(fontSize: 20), // font size of button text
+                ),
+                child: Text('Edit Profile',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+
               const SizedBox(
                 height: 30,
               ),
@@ -135,8 +180,45 @@ class ProfileScreen extends StatelessWidget {
                 icon: LineAwesomeIcons.alternate_sign_out,
                 textColor: Colors.red,
                 iconColor: Colors.red,
+                iconOutlineColor: Colors.red.withOpacity(0.2),
                 endIcon: false,
-                onPress: () {},
+                onPress: () {
+                  // Show a confirmation dialog
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text('Logout'),
+                        content:
+                            const Text('Are you sure you want to log out?'),
+                        actions: <Widget>[
+                          // No button
+                          TextButton(
+                            onPressed: () {
+                              // Dismiss the dialog but don't log out
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('No'),
+                          ),
+                          // Yes button
+                          TextButton(
+                            onPressed: () async {
+                              // Dismiss the dialog
+                              Navigator.of(context).pop();
+                              // Clear shared preferences and log out
+                              final SharedPreferences prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.clear();
+                              // Navigate to the login screen
+                              Navigator.pushNamed(context, '/');
+                            },
+                            child: const Text('Yes'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
               ),
             ],
           ),
@@ -155,6 +237,7 @@ class ProfileMenuWidget extends StatelessWidget {
     this.endIcon = true,
     this.textColor,
     this.iconColor, // New property for optional icon color
+    this.iconOutlineColor, // New property for optional icon background color
   });
 
   final String title;
@@ -163,6 +246,8 @@ class ProfileMenuWidget extends StatelessWidget {
   final bool endIcon;
   final Color? textColor;
   final Color? iconColor; // New property for optional icon color
+  final Color?
+      iconOutlineColor; // New property for optional icon background color
 
   @override
   Widget build(BuildContext context) {
@@ -173,7 +258,8 @@ class ProfileMenuWidget extends StatelessWidget {
         height: 40,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(100),
-          color: Colors.white.withOpacity(0.1),
+          color: iconOutlineColor ??
+              Colors.white.withOpacity(0.1), // Use iconOutlineColor if provided
         ),
         child: Icon(
           icon,
