@@ -150,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () {
-                              print("forgetPassword");
+                              Navigator.pushNamed(context, '/forget');
                             }),
                     ]),
               ),

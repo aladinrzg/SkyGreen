@@ -9,7 +9,7 @@ import 'package:sky_green/screens/splash_screen.dart';
 import 'package:sky_green/screens/updateProfile_screen.dart';
 import 'package:sky_green/screens/verification_screen.dart';
 
-Widget _defaultHome = ForgetPasswordScreen();
+Widget _defaultHome = SplashScreen();
 
 void main() {
   runApp(const MyApp());
