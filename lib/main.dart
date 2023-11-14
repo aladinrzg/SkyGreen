@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:sky_green/screens/friend_list_screen.dart';
 import 'package:sky_green/screens/login_screen.dart';
+import 'package:sky_green/screens/profile_grid.dart';
 import 'package:sky_green/screens/profile_screen.dart';
 import 'package:sky_green/screens/register_screen.dart';
 import 'package:sky_green/screens/splash_screen.dart';
 import 'package:sky_green/screens/updateProfile_screen.dart';
 
-Widget _defaultHome = const SplashScreen();
+Widget _defaultHome = const ProfileGrid();
 
 void main() {
   runApp(const MyApp());
@@ -25,6 +27,8 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         '/': (context) => _defaultHome,
+        '/friends': (context) => FriendListScreen(),
+        '/grid': (context) => ProfileGrid(),
         '/login': (context) => LoginScreen(),
         '/register': (context) => RegisterScreen(),
         '/profile': (context) => ProfileScreen(),
