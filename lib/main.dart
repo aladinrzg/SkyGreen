@@ -7,7 +7,9 @@ import 'package:sky_green/screens/profile_screen.dart';
 import 'package:sky_green/screens/register_screen.dart';
 import 'package:sky_green/screens/splash_screen.dart';
 import 'package:sky_green/screens/updateProfile_screen.dart';
-import 'package:sky_green/screens/verification_screen.dart';
+
+import 'package:sky_green/views/screens/AdminPanelEvent.dart';
+import 'package:sky_green/views/screens/home.dart';
 
 Widget _defaultHome = SplashScreen();
 
@@ -30,13 +32,18 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => _defaultHome,
         '/forget': (context) => ForgetPasswordScreen(),
+
         '/friends': (context) => FriendListScreen(),
         '/grid': (context) => ProfileGrid(),
+
         '/login': (context) => LoginScreen(),
         '/splash': (context) => SplashScreen(),
         '/register': (context) => RegisterScreen(),
         '/profile': (context) => ProfileScreen(),
         '/updateProfile': (context) => UpdateProfileScreen(),
+//asmaaaaaa =======================================================
+        '/events': (context) => Home(),
+        '/adminEvent': (context) => AdminPanelEvent(),
       },
     );
   }

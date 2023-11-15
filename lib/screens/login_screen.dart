@@ -371,6 +371,7 @@ Future<void> signIn(
           .replaceAll(RegExp('http://localhost'), 'http://10.0.2.2');
       await prefs.setString('token', data['token']);
       await prefs.setString('username', data['username']);
+      await prefs.setString('id', data['id']);
       await prefs.setString('image', imageUrl);
       await prefs.setString('email', data['email']);
       // Navigate to the next screen or show a success message
@@ -405,9 +406,11 @@ Future<void> printSharedPreferences() async {
   String? username = prefs.getString('username');
   String? email = prefs.getString('email');
   String? image = prefs.getString('image');
+  String? id = prefs.getString('id');
 
   print('Token: $token');
   print('Username: $username');
   print('Email: $email');
   print('Image: $image');
+  print('Id: $id');
 }

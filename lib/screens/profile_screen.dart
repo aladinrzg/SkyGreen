@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:line_awesome_flutter/line_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sky_green/CustomBottomNavigationBar.dart';
 import 'package:snippet_coder_utils/FormHelper.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -14,6 +15,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _username = 'Your Name';
   String _email = 'email@example.com';
   String _imagePath = 'assets/images/pfp.jpg';
+
+  //
+  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -220,6 +224,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
       ),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          _currentIndex = index;
+          switch (index) {
+            case 0:
+              Navigator.pushNamed(context, '/postsssss');
+              break;
+            case 4:
+              Navigator.pushNamed(context, '/adminEvent');
+              break;
+            case 5:
+              Navigator.pushNamed(context, '/events');
+              break;
+            case 6:
+              Navigator.pushNamed(context, '/profile');
+              break;
+            default:
+          }
+        },
+      ),
+      // bottomNavigationBar: ,
     );
   }
 }
