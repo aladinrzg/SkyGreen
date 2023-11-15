@@ -232,13 +232,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             case 0:
               Navigator.pushNamed(context, '/postsssss');
               break;
-            case 4:
+            case 6:
               Navigator.pushNamed(context, '/adminEvent');
               break;
-            case 5:
+            case 7:
               Navigator.pushNamed(context, '/events');
               break;
-            case 6:
+            case 8:
               Navigator.pushNamed(context, '/profile');
               break;
             default:
